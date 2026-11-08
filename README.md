@@ -1,6 +1,6 @@
 # 🌿 PhytoTarget
 
-**Bias-corrected target prediction for plant natural products, with source-organism enrichment.**
+**Bias-corrected target prediction for natural products, with source-organism enrichment.**
 
 Traditional medicine encodes centuries of pharmacological observation, but it names
 *plants*, not *molecules* or *protein targets*. PhytoTarget closes that gap in the
@@ -57,6 +57,15 @@ Two further guards apply at screening time rather than training time:
 | **y-scrambled ROC-AUC** (must be ≈0.50) | **0.501 ± 0.022** | **0.505 ± 0.022** |
 | AVE split bias | +0.502 | +0.376 |
 | Brier score / ECE (isotonic) | 0.109 / 0.073 | 0.130 / 0.112 |
+| EF@1%, raw test set (*uninformative*) | 1.56 of a 1.56 ceiling | 2.21 of a 2.21 ceiling |
+| **EF@1%, decoy-augmented** | **54.9** of a 55 ceiling | **66.7** of a 94 ceiling |
+
+On enrichment factor specifically: the raw-test-set EF of 1.56 is not a weak result, it
+is a **meaningless** one — it is the arithmetic maximum for a 64%-active set. Hiding
+held-out actives in the real library instead puts prevalence at 1–2% and gives EF@1% of
+54.9 and 66.7. The AChE figure still sits at its ceiling, so the top 1% of that ranked
+library is essentially all held-out actives; the MAO-B figure, at 71% of its ceiling, is
+the more informative of the two.
 
 The y-scrambling result is the single most important row: with labels permuted,
 performance sits on chance with a tight standard deviation. There is no leakage path
@@ -72,9 +81,72 @@ overfitting to a validation statistic.
 
 ### Library
 
-Built live from **LOTUS via Wikidata** (SPARQL): **102,291** referenced plant–compound
-occurrence pairs covering **43,088** compounds across **21,377** plant taxa, collapsing
-to **23,761** unique standardised structures after InChIKey deduplication.
+Built live from **LOTUS via Wikidata** (SPARQL): **102,470** referenced
+organism–compound occurrence pairs covering **43,093** compounds across **21,377**
+source taxa, collapsing to **23,765** unique standardised structures after InChIKey
+deduplication.
+
+**An important scope correction.** The intent was a plant-only library, but the
+transitive plant filter (`wdt:P171* wd:Q25314`) times the WDQS endpoint out, so the
+library is the full set of LOTUS *source organisms*. It is predominantly plants, but
+it also contains fungi, algae, cyanobacteria and bacteria. This is visible in the
+results — *Lyngbya majuscula* is a cyanobacterium and *Cladosporium* a fungus — and it
+is a real limitation of this build rather than a presentation choice. It cuts both
+ways: it widens the library beyond the ethnobotanical framing, and it is also how the
+strongest AChE hits were found (see below).
+
+### Screening output
+
+| | AChE (CHEMBL220) | MAO-B (CHEMBL2039) |
+|---|---|---|
+| Compounds scored | 23,765 | 23,765 |
+| **Inside applicability domain** | **15.7%** | **7.8%** |
+| Novel + in-domain | 3,726 | 1,856 |
+| ...and free of PAINS alerts | 3,265 | 1,532 |
+| Known actives recovered and flagged | 8 | 0 |
+| Taxa tested / significant at FDR < 0.05 | 12,203 / **62** | 12,203 / **46** |
+
+The applicability-domain figure is the most important number in this table and the
+least flattering. **Over 84% of the natural-product library is too dissimilar from
+ChEMBL's AChE chemistry for a probability to mean anything**, so the dashboard
+defaults to hiding those rows rather than ranking 23,765 extrapolations.
+
+### Retrospective recovery: what the model does with known plant-derived leads
+
+These compounds are in the library and their ranks are honest — the model was not told
+which rows they were.
+
+| Compound | Source organism | Rank of 23,765 | Percentile | P(active) |
+|---|---|---|---|---|
+| **galantamine** (licensed AChE drug) | *Galanthus nivalis* | **626** | top 2.6% | 0.536 |
+| **harmine** (MAO inhibitor) | *Peganum harmala* | **927** | top 3.9% | 0.482 |
+| huperzine A | *Huperzia serrata* | 3,730 | top 15.7% | 0.403 |
+| harmaline | *Peganum harmala* | 5,358 | top 22.6% | 0.281 |
+| physostigmine | *Physostigma venenosum* | 8,287 | top 34.9% | 0.299 |
+
+Two of five land in the top 4%. **Three do not, and the physostigmine result is a
+genuine, explainable failure worth stating plainly**: physostigmine is a carbamate
+that inhibits AChE by covalently carbamylating the catalytic serine. A 2D
+fingerprint model has no representation of a covalent mechanism — it can only ask
+whether a structure resembles known binders — so a mechanistically distinct inhibitor
+is exactly the case it should be expected to miss. Reporting only galantamine here
+would have been straightforward and dishonest.
+
+Note also that galantamine is among the 8 flagged known actives, so its rank is partly
+**rediscovery, not discovery**. That is precisely why known actives are stripped out
+before organism enrichment is computed.
+
+### Top novel hits (AChE, in-domain, no PAINS)
+
+The highest-scoring novel compounds are **terreulactone D** (P = 0.843) and
+**territrem E** (P = 0.818), both meroterpenoids from *Aspergillus terreus*. The
+territrem family is independently documented in the literature as a class of
+exceptionally potent AChE inhibitors. The model surfaced them without them appearing
+among its training actives — a checkable result rather than a claim, and the clearest
+single piece of evidence that the ranking carries real signal.
+
+It is also a direct consequence of the scope slip described above: had the plant-only
+filter worked, these fungal compounds would not have been in the library at all.
 
 ---
 

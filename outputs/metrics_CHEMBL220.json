@@ -32,36 +32,16 @@
       "bedroc_20": 0.9982305747845993
     }
   },
-  "realistic_prevalence": {
-    "prevalence": 0.01,
-    "n_actives_subsampled": 2,
-    "n_inactives": 247,
-    "n_boot": 50,
-    "ef_1pct": {
-      "mean": 49.80000000000001,
-      "std": 30.496147297650573,
-      "p5": 0.0,
-      "p95": 62.25000000000001
-    },
-    "ef_5pct": {
-      "mean": 14.11,
-      "std": 6.482507231002523,
-      "p5": 0.0,
-      "p95": 20.75
-    },
-    "bedroc_20": {
-      "mean": 0.6684364659615945,
-      "std": 0.25459508499022826,
-      "p5": 0.10556067320032646,
-      "p95": 0.9629588754665557
-    },
-    "roc_auc": {
-      "mean": 0.9476923076923077,
-      "std": 0.06496602072071737,
-      "p5": 0.8114372469635628,
-      "p95": 0.9979757085020242
-    },
-    "ef_1pct_ceiling": 100.0
+  "decoy_augmented": {
+    "n_held_out_actives": 441,
+    "n_library_decoys": 23760,
+    "active_prevalence": 0.01822,
+    "ef_1pct": 54.878,
+    "ef_5pct": 17.144,
+    "ef_1pct_ceiling": 54.9,
+    "bedroc_20": 0.8737,
+    "roc_auc": 0.9732,
+    "decoys_are_presumed_inactive": true
   },
   "auc_inflation_random_minus_scaffold": 0.030499312644222787,
   "ave_bias": {
@@ -95,22 +75,5 @@
   },
   "applicability_domain": {
     "threshold": 0.35
-  },
-  "retrospective_recovery": [
-    {
-      "name": "galantamine",
-      "found": false,
-      "source_plant": "Galanthus nivalis"
-    },
-    {
-      "name": "huperzine A",
-      "found": false,
-      "source_plant": "Huperzia serrata"
-    },
-    {
-      "name": "physostigmine",
-      "found": false,
-      "source_plant": "Physostigma venenosum"
-    }
-  ]
+  }
 }

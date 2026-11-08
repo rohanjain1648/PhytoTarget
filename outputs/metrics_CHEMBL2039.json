@@ -32,36 +32,16 @@
       "bedroc_20": 0.8915265995012317
     }
   },
-  "realistic_prevalence": {
-    "prevalence": 0.01,
-    "n_actives_subsampled": 3,
-    "n_inactives": 309,
-    "n_boot": 50,
-    "ef_1pct": {
-      "mean": 2.08,
-      "std": 8.232877180346287,
-      "p5": 0.0,
-      "p95": 19.066666666666567
-    },
-    "ef_5pct": {
-      "mean": 12.22,
-      "std": 5.141167182654149,
-      "p5": 6.5,
-      "p95": 19.5
-    },
-    "bedroc_20": {
-      "mean": 0.4251155607622223,
-      "std": 0.15130519714395738,
-      "p5": 0.2070520279456427,
-      "p95": 0.715348365118886
-    },
-    "roc_auc": {
-      "mean": 0.9142826321467098,
-      "std": 0.05947778688726797,
-      "p5": 0.7932578209277239,
-      "p95": 0.9816612729234089
-    },
-    "ef_1pct_ceiling": 100.0
+  "decoy_augmented": {
+    "n_held_out_actives": 255,
+    "n_library_decoys": 23765,
+    "active_prevalence": 0.01062,
+    "ef_1pct": 66.722,
+    "ef_5pct": 17.882,
+    "ef_1pct_ceiling": 94.2,
+    "bedroc_20": 0.8603,
+    "roc_auc": 0.973,
+    "decoys_are_presumed_inactive": true
   },
   "auc_inflation_random_minus_scaffold": 0.050077922654737206,
   "ave_bias": {
@@ -95,17 +75,5 @@
   },
   "applicability_domain": {
     "threshold": 0.35
-  },
-  "retrospective_recovery": [
-    {
-      "name": "harmine",
-      "found": false,
-      "source_plant": "Peganum harmala"
-    },
-    {
-      "name": "harmaline",
-      "found": false,
-      "source_plant": "Peganum harmala"
-    }
-  ]
+  }
 }

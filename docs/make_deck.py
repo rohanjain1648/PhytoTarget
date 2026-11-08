@@ -88,7 +88,7 @@ def chart_splits(path: Path) -> Path:
         ax.text(i + 0.19, s + 0.012, f"{s:.3f}", ha="center", fontsize=9,
                 color="#2E7D5B", fontweight="bold")
     ax.axhline(0.5, color="#B4541E", lw=1, ls=":", zorder=0)
-    ax.text(len(labels) - 0.5, 0.515, "chance", fontsize=8, color="#B4541E", ha="right")
+    ax.text(-0.42, 0.517, "chance", fontsize=8, color="#B4541E", ha="left")
     ax.set_xticks(list(x)); ax.set_xticklabels(labels)
     ax.set_ylim(0.45, 1.04); ax.set_ylabel("ROC-AUC")
     ax.legend(frameon=False, fontsize=9, loc="lower center", ncol=2,
@@ -433,7 +433,7 @@ def build(path: Path) -> None:
     if not S.empty:
         novel = S[(~S["is_known_active"].astype(bool)) & (S["in_domain"])]
         clean = novel[novel["pains_alerts"] == 0]
-        stat(c, 0.92 * inch, y, f"{len(S):,}", "plant compounds scored")
+        stat(c, 0.92 * inch, y, f"{len(S):,}", "source-organism compounds scored")
         stat(c, 4.0 * inch, y, f"{len(novel):,}", "novel + inside applicability domain")
         stat(c, 7.6 * inch, y, f"{len(clean):,}", "of those with no PAINS alert")
         kn = int(S["is_known_active"].sum())

@@ -142,7 +142,15 @@ def explain_path(G: nx.DiGraph, taxon_label: str, max_paths: int = 5) -> list[li
 
 def run(target_id: str, cfg: dict, data_dir: Path, out_dir: Path, top_n: int = 300):
     G = build(target_id, cfg, data_dir, out_dir, top_n)
-    data = nx.node_link_data(G, edges="links")
+    # networkx renamed this key: <3.4 emits "links", >=3.4 wants edges="links"
+    # passed explicitly or it emits "edges" with a deprecation warning. Support both
+    # so the JSON shape the dashboard reads stays stable across versions.
+    try:
+        data = nx.node_link_data(G, edges="links")
+    except TypeError:
+        data = nx.node_link_data(G)
+    if "links" not in data and "edges" in data:
+        data["links"] = data.pop("edges")
     write_json(data, out_dir / f"kg_{target_id}.json")
     log.info("wrote %s", out_dir / f"kg_{target_id}.json")
 

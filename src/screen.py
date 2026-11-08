@@ -25,7 +25,7 @@ import joblib
 import numpy as np
 import pandas as pd
 
-from .chem import featurize, inchikey, pains_alerts, tanimoto_max
+from .chem import featurize, inchikey, inchikey_skeleton, pains_alerts, tanimoto_max
 from .fetch_lotus import LABELS_QUERY, _qid, _sparql
 from .libfeatures import library_features, library_pains
 from .util import load_config, setup_logging, target_config
@@ -50,7 +50,10 @@ def annotate_names(df: pd.DataFrame, top_n: int = 3000, extra_qids=()) -> pd.Dat
                 names[_qid(b["item"]["value"])] = b["label"]["value"]
         except RuntimeError:
             log.warning("label chunk %d failed; continuing", i)
-    df["compound_name"] = df["compound_qid"].map(names).fillna("")
+    # Only overwrite where the lookup actually returned something: compounds outside
+    # the labelled slice keep whatever name the library already carried.
+    resolved = df["compound_qid"].map(names)
+    df["compound_name"] = resolved.fillna(df.get("compound_name")).fillna("")
     log.info("resolved %d compound names", int((df["compound_name"] != "").sum()))
     return df
 
@@ -64,17 +67,17 @@ def resolve_by_name(names: list[str]) -> dict[str, str]:
     """
     if not names:
         return {}
-    variants = []
-    for n in names:
-        variants += [f'"{n}"@en', f'"{n[0].upper() + n[1:]}"@en', f'"{n.lower()}"@en']
-    query = ("SELECT ?item ?label WHERE { ?item rdfs:label ?label . VALUES ?label { "
-             + " ".join(dict.fromkeys(variants)) + " } ?item wdt:P233 ?s . }")
+    # Resolving a label through SPARQL means scanning every rdfs:label in Wikidata,
+    # which WDQS answers with a 504. The entity-search endpoint does it in one call.
+    from .augment_library import resolve_qid
+
     out: dict[str, str] = {}
-    try:
-        for b in _sparql(query):
-            out[b["label"]["value"].lower()] = _qid(b["item"]["value"])
-    except RuntimeError:
-        log.warning("could not resolve retrospective compound names")
+    for n in names:
+        hit = resolve_qid(n)
+        if hit:
+            out[n.lower()] = hit[0]
+        else:
+            log.warning("could not resolve %s to a Wikidata structure", n)
     return out
 
 
@@ -103,12 +106,18 @@ def collapse_library(lib: pd.DataFrame) -> pd.DataFrame:
 
 
 def known_active_keys(bioactivity_path: Path) -> set[str]:
-    """InChIKeys of the target's training actives, for the rediscovery flag."""
+    """Skeleton InChIKeys of the target's training actives, for the rediscovery flag.
+
+    Skeletons, not full keys: Wikidata SMILES are frequently drawn without
+    stereochemistry while ChEMBL's are stereo-specified, so full-key matching
+    recovers almost nothing (5 of 2,216 actives on AChE). See
+    `chem.inchikey_skeleton` for why the looser match is the right one here.
+    """
     if not bioactivity_path.exists():
         return set()
     df = pd.read_csv(bioactivity_path)
     actives = df[df["label"] == 1]["smiles"].dropna()
-    keys = {inchikey(s) for s in actives}
+    keys = {inchikey_skeleton(s) for s in actives}
     keys.discard("")
     log.info("%d known actives available for dedup flagging", len(keys))
     return keys
@@ -144,7 +153,7 @@ def run(target_id: str, cfg: dict, data_dir: Path, out_dir: Path, model_dir: Pat
     log.info("%d compounds carry at least one PAINS alert", int((compounds.pains_alerts > 0).sum()))
 
     known = known_active_keys(data_dir / f"bioactivity_{target_id}.csv")
-    compounds["is_known_active"] = compounds["inchikey"].isin(known)
+    compounds["is_known_active"] = compounds["smiles"].map(inchikey_skeleton).isin(known)
     log.info("%d library compounds are already known actives for this target",
              int(compounds.is_known_active.sum()))
 

@@ -189,3 +189,24 @@ def tanimoto_max(query_fps: np.ndarray, ref_fps: np.ndarray, block: int = 512) -
             sim = np.where(union > 0, inter / union, 0.0)
         out[start:start + block] = sim.max(axis=1)
     return out
+
+
+def inchikey_skeleton(smiles: str) -> str:
+    """First InChIKey block: the connectivity layer, ignoring stereo and charge.
+
+    Cross-source compound matching needs this. Wikidata's P233 SMILES are often
+    drawn flat - the galantamine record carries no stereocentres at all - while
+    ChEMBL stores the stereo-specified structure. Their full InChIKeys therefore
+    disagree (`...-UHFFFAOYSA-N` vs `...-VTHUDJRQSA-N`) even though both records
+    describe the same molecule, and matching on the full key finds almost nothing.
+
+    The first block encodes the molecular skeleton only, so it matches across
+    those representations. The trade-off is deliberate and worth stating: this
+    merges stereoisomers, so a flag built on it means "this skeleton is a known
+    active", not "this exact stereoisomer is". For the purpose it serves -
+    refusing to present a rediscovery as a novel hit - the looser, more cautious
+    match is the correct one. Library deduplication still uses the full key, so
+    enantiomers remain distinct compounds in the ranking.
+    """
+    key = inchikey(smiles)
+    return key.split("-")[0] if key else ""

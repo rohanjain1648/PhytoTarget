@@ -212,9 +212,6 @@ def main(argv=None) -> int:
     return 0
 
 
-if __name__ == "__main__":
-    sys.exit(main())
-
 
 def _decoy_augmented(X, y, test_idx, model, cfg: dict, data_dir: Path,
                      target_id: str) -> dict:
@@ -258,3 +255,7 @@ def _decoy_augmented(X, y, test_idx, model, cfg: dict, data_dir: Path,
     active_scores = model.predict_proba(X[test_idx][y[test_idx] == 1])[:, 1]
     return decoy_augmented_eval(active_scores, decoy_scores)
 
+
+
+if __name__ == "__main__":
+    sys.exit(main())

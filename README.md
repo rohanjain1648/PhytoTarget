@@ -1,5 +1,11 @@
 # 🌿 PhytoTarget
 
+> **EthnoHack 2026 — Track 2: Natural Products & Drug Discovery**
+
+<p align="center">
+  <img src="docs/cover_image.jpg" alt="PhytoTarget Cover" width="100%" />
+</p>
+
 **Bias-corrected target prediction for natural products, with source-organism enrichment.**
 
 Traditional medicine encodes centuries of pharmacological observation, but it names

@@ -79,7 +79,7 @@ if not targets:
 
 with st.sidebar:
     st.markdown("## 🌿 PhytoTarget")
-    st.caption("Bias-corrected screening of plant natural products, with source-organism enrichment.")
+    st.caption("Bias-corrected screening of natural products, with source-organism enrichment.")
     tid = st.selectbox("Disease target", targets,
                        format_func=lambda t: f"{load_metrics(t).get('target_name', t)} ({t})")
     metrics = load_metrics(tid)
@@ -95,9 +95,10 @@ enrichment = load_enrichment(tid)
 st.title(f"{metrics.get('target_name', tid)} — plant natural-product screen")
 
 c1, c2, c3, c4, c5 = st.columns(5)
-c1.metric("Library compounds", f"{len(screen):,}")
+c1.metric("Compounds screened", f"{len(screen):,}")
 c2.metric("Scaffold-split ROC-AUC", f"{metrics.get('splits', {}).get('scaffold', {}).get('roc_auc', float('nan')):.3f}")
-c3.metric("EF @ 1%", f"{metrics.get('splits', {}).get('scaffold', {}).get('ef_1pct', float('nan')):.1f}×")
+c3.metric("EF @ 1% (decoy-augmented)",
+          f"{metrics.get('decoy_augmented', {}).get('ef_1pct', float('nan')):.0f}×")
 c4.metric("In applicability domain", f"{100 * screen['in_domain'].mean():.1f}%")
 sig = int((enrichment["q_value"] < 0.05).sum()) if not enrichment.empty else 0
 c5.metric("Enriched taxa (FDR<0.05)", sig)
@@ -260,14 +261,32 @@ with tab_valid:
         st.caption(f"ECE {cal.get('ece', float('nan')):.4f}, {cal.get('method', '—')} calibration. "
                    "A compound shown at P=0.9 should be active about 90% of the time.")
 
-    st.markdown("#### 5. Early-recognition metrics (scaffold split)")
-    st.caption("What a screener actually cares about: how many real actives land in the slice you "
-               "could afford to test.")
+    st.markdown("#### 5. Early recognition, measured where it means something")
+    da = metrics.get("decoy_augmented", {})
+    raw_ceiling = 1.0 / scaf.get("active_fraction", 1) if scaf.get("active_fraction") else float("nan")
+    st.caption(
+        f"Enrichment factor is capped at 1/active_fraction. This test set is "
+        f"{100 * scaf.get('active_fraction', 0):.0f}% actives because ChEMBL is "
+        f"publication-biased, so EF@1% here **cannot exceed {raw_ceiling:.2f}** no matter how "
+        "good the model is — quoting it would be meaningless. Instead the held-out scaffold "
+        "actives are hidden among the real natural-product library, which puts prevalence near "
+        "1% with the active count still in the hundreds.")
     m1, m2, m3, m4 = st.columns(4)
     m1.metric("ROC-AUC", f"{scaf.get('roc_auc', 0):.3f}")
     m2.metric("PR-AUC", f"{scaf.get('pr_auc', 0):.3f}")
-    m3.metric("EF @ 1%", f"{scaf.get('ef_1pct', 0):.1f}×")
-    m4.metric("BEDROC (α=20)", f"{scaf.get('bedroc_20', 0):.3f}")
+    m3.metric("EF @ 1%, raw test set",
+              f"{scaf.get('ef_1pct', 0):.2f}×",
+              delta=f"ceiling {raw_ceiling:.2f}× — saturated", delta_color="off")
+    m4.metric("EF @ 1%, decoy-augmented",
+              f"{da.get('ef_1pct', float('nan')):.1f}×",
+              delta=f"ceiling {da.get('ef_1pct_ceiling', float('nan')):.0f}×", delta_color="off")
+    if da:
+        st.caption(
+            f"{da.get('n_held_out_actives', 0)} held-out actives among "
+            f"{da.get('n_library_decoys', 0):,} library decoys "
+            f"({100 * da.get('active_prevalence', 0):.2f}% prevalence). Decoys are *presumed* "
+            "inactive rather than measured inactive, so a decoy that is truly active counts "
+            "against the model — this is a conservative estimate.")
 
     with st.expander("Dataset composition"):
         st.json({k: metrics.get(k) for k in

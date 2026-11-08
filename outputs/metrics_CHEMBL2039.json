@@ -1,0 +1,111 @@
+{
+  "target_chembl_id": "CHEMBL2039",
+  "target_name": "Monoamine oxidase B",
+  "disease": "Parkinson's disease / depression",
+  "n_molecules": 2818,
+  "n_actives": 1568,
+  "n_inactives": 1250,
+  "n_scaffolds": 1037,
+  "label_thresholds": {
+    "active_pchembl": 6.5,
+    "inactive_pchembl": 5.0
+  },
+  "splits": {
+    "random": {
+      "n": 564,
+      "n_actives": 317,
+      "active_fraction": 0.5620567375886525,
+      "roc_auc": 0.9725603136693955,
+      "pr_auc": 0.9787799431215944,
+      "ef_1pct": 1.779179810725552,
+      "ef_5pct": 1.779179810725552,
+      "bedroc_20": 0.9997111885898171
+    },
+    "scaffold": {
+      "n": 564,
+      "n_actives": 255,
+      "active_fraction": 0.4521276595744681,
+      "roc_auc": 0.9224823910146583,
+      "pr_auc": 0.8765464225642148,
+      "ef_1pct": 2.211764705882353,
+      "ef_5pct": 1.9747899159663866,
+      "bedroc_20": 0.8915265995012317
+    }
+  },
+  "realistic_prevalence": {
+    "prevalence": 0.01,
+    "n_actives_subsampled": 3,
+    "n_inactives": 309,
+    "n_boot": 50,
+    "ef_1pct": {
+      "mean": 2.08,
+      "std": 8.232877180346287,
+      "p5": 0.0,
+      "p95": 19.066666666666567
+    },
+    "ef_5pct": {
+      "mean": 12.22,
+      "std": 5.141167182654149,
+      "p5": 6.5,
+      "p95": 19.5
+    },
+    "bedroc_20": {
+      "mean": 0.4251155607622223,
+      "std": 0.15130519714395738,
+      "p5": 0.2070520279456427,
+      "p95": 0.715348365118886
+    },
+    "roc_auc": {
+      "mean": 0.9142826321467098,
+      "std": 0.05947778688726797,
+      "p5": 0.7932578209277239,
+      "p95": 0.9816612729234089
+    },
+    "ef_1pct_ceiling": 100.0
+  },
+  "auc_inflation_random_minus_scaffold": 0.050077922654737206,
+  "ave_bias": {
+    "ave_bias": 0.37597640213288414,
+    "AA": 0.3532778768072885,
+    "AI": 0.557635175282234,
+    "II": 0.41206564022097997,
+    "IA": 0.5836847438789186
+  },
+  "y_scramble": {
+    "mean_roc_auc": 0.5048582575921237,
+    "std": 0.021646059546784353,
+    "n_runs": 10,
+    "runs": [
+      0.49545559134836625,
+      0.4826605631849078,
+      0.49385462888261394,
+      0.5088547815820542,
+      0.528663101604278,
+      0.4905700895620429,
+      0.5541769692688097,
+      0.47774718237704916,
+      0.5099524318274319,
+      0.5066472362836836
+    ]
+  },
+  "calibration": {
+    "brier": 0.12990634155073036,
+    "ece": 0.11234250389900294,
+    "method": "isotonic"
+  },
+  "applicability_domain": {
+    "threshold": 0.35
+  },
+  "retrospective_recovery": [
+    {
+      "name": "harmine",
+      "found": false,
+      "source_plant": "Peganum harmala"
+    },
+    {
+      "name": "harmaline",
+      "found": false,
+      "source_plant": "Peganum harmala"
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+
+# Fetched data and trained artefacts are reproducible from the pipeline.
+# The repo stays small; `python -m src.fetch_chembl` etc. rebuild them.
+data/raw/
+data/processed/*.csv
+data/processed/*.npz
+models/*.joblib
+models/*.npz
+
+# Screening outputs are regenerable; the committed metrics_*.json are the
+# small, citable validation record and are deliberately NOT ignored.
+outputs/screen_*.csv
+outputs/kg_*.json
+outputs/kg_*.graphml
+outputs/*.log
+
+.ipynb_checkpoints/
+.DS_Store

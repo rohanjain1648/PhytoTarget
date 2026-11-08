@@ -1,0 +1,116 @@
+{
+  "target_chembl_id": "CHEMBL220",
+  "target_name": "Acetylcholinesterase",
+  "disease": "Alzheimer's disease",
+  "n_molecules": 3439,
+  "n_actives": 2216,
+  "n_inactives": 1223,
+  "n_scaffolds": 1799,
+  "label_thresholds": {
+    "active_pchembl": 6.5,
+    "inactive_pchembl": 5.0
+  },
+  "splits": {
+    "random": {
+      "n": 688,
+      "n_actives": 434,
+      "active_fraction": 0.6308139534883721,
+      "roc_auc": 0.9738742334627526,
+      "pr_auc": 0.9849683540291999,
+      "ef_1pct": 1.5852534562211982,
+      "ef_5pct": 1.5852534562211982,
+      "bedroc_20": 0.9998270914352239
+    },
+    "scaffold": {
+      "n": 688,
+      "n_actives": 441,
+      "active_fraction": 0.6409883720930233,
+      "roc_auc": 0.9433749208185298,
+      "pr_auc": 0.9664938856208456,
+      "ef_1pct": 1.5600907029478457,
+      "ef_5pct": 1.5600907029478457,
+      "bedroc_20": 0.9982305747845993
+    }
+  },
+  "realistic_prevalence": {
+    "prevalence": 0.01,
+    "n_actives_subsampled": 2,
+    "n_inactives": 247,
+    "n_boot": 50,
+    "ef_1pct": {
+      "mean": 49.80000000000001,
+      "std": 30.496147297650573,
+      "p5": 0.0,
+      "p95": 62.25000000000001
+    },
+    "ef_5pct": {
+      "mean": 14.11,
+      "std": 6.482507231002523,
+      "p5": 0.0,
+      "p95": 20.75
+    },
+    "bedroc_20": {
+      "mean": 0.6684364659615945,
+      "std": 0.25459508499022826,
+      "p5": 0.10556067320032646,
+      "p95": 0.9629588754665557
+    },
+    "roc_auc": {
+      "mean": 0.9476923076923077,
+      "std": 0.06496602072071737,
+      "p5": 0.8114372469635628,
+      "p95": 0.9979757085020242
+    },
+    "ef_1pct_ceiling": 100.0
+  },
+  "auc_inflation_random_minus_scaffold": 0.030499312644222787,
+  "ave_bias": {
+    "ave_bias": 0.5022576050144971,
+    "AA": 0.23686983210792734,
+    "AI": 0.5563686754162943,
+    "II": 0.4373492005070952,
+    "IA": 0.6201079622132254
+  },
+  "y_scramble": {
+    "mean_roc_auc": 0.5010109187370239,
+    "std": 0.021963581655709462,
+    "n_runs": 10,
+    "runs": [
+      0.5084526517685891,
+      0.46403145814022384,
+      0.5417195417195417,
+      0.5271753454572837,
+      0.48295691887827563,
+      0.5004350388728284,
+      0.48611264393186915,
+      0.5044371420349587,
+      0.5127764039708992,
+      0.482012042595769
+    ]
+  },
+  "calibration": {
+    "brier": 0.10903343011580335,
+    "ece": 0.07266625489865312,
+    "method": "isotonic"
+  },
+  "applicability_domain": {
+    "threshold": 0.35
+  },
+  "retrospective_recovery": [
+    {
+      "name": "galantamine",
+      "found": false,
+      "source_plant": "Galanthus nivalis"
+    },
+    {
+      "name": "huperzine A",
+      "found": false,
+      "source_plant": "Huperzia serrata"
+    },
+    {
+      "name": "physostigmine",
+      "found": false,
+      "source_plant": "Physostigma venenosum"
+    }
+  ]
+}

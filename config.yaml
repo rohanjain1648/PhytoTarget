@@ -1,0 +1,66 @@
+# PhytoTarget configuration
+# Every number here is a scientific choice. Changing one changes the claims.
+
+labels:
+  # pChEMBL = -log10(molar). 6.5 => 316 nM. 5.0 => 10 uM.
+  # The band between them is dropped: it is the region where assay noise
+  # (typically +/- 0.5 log units between labs) makes the class genuinely ambiguous.
+  active_threshold: 6.5
+  inactive_threshold: 5.0
+  allowed_types: [IC50, Ki, Kd, EC50]
+  allowed_assay_types: [B, F]        # binding, functional
+  require_human: true
+
+fingerprint:
+  radius: 2                           # ECFP4
+  n_bits: 2048
+  use_descriptors: true
+
+split:
+  method: scaffold                    # primary split; random is reported as a bias control
+  test_fraction: 0.2
+  random_seed: 42
+
+model:
+  n_estimators: 400
+  learning_rate: 0.05
+  num_leaves: 63
+  min_child_samples: 20
+  calibration: isotonic
+
+validation:
+  y_scramble_runs: 10                 # null control: AUC must collapse to ~0.5
+  ef_fractions: [0.01, 0.05]
+  bedroc_alpha: 20.0
+
+applicability_domain:
+  # Max Tanimoto to any training molecule. Below this the model is extrapolating
+  # and the probability should not be believed.
+  similarity_threshold: 0.35
+
+screening:
+  top_k_for_enrichment: 500
+  min_compounds_per_taxon: 3          # taxa below this are untestable, not tested
+  fdr_alpha: 0.05
+
+lotus:
+  max_pairs: 120000                   # cap on Wikidata pairs pulled
+  page_size: 10000
+
+targets:
+  - chembl_id: CHEMBL220
+    name: Acetylcholinesterase
+    disease: Alzheimer's disease
+    # Plant-derived drugs/leads that really do hit this target. The model never
+    # sees these as special; recovering them is a retrospective check, not training.
+    retrospective_positives:
+      - {name: galantamine,   source_plant: Galanthus nivalis}
+      - {name: huperzine A,   source_plant: Huperzia serrata}
+      - {name: physostigmine, source_plant: Physostigma venenosum}
+
+  - chembl_id: CHEMBL2039
+    name: Monoamine oxidase B
+    disease: Parkinson's disease / depression
+    retrospective_positives:
+      - {name: harmine,   source_plant: Peganum harmala}
+      - {name: harmaline, source_plant: Peganum harmala}
